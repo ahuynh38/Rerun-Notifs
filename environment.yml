@@ -1,0 +1,11 @@
+# Rebuild with: conda env create -f environment.yml
+name: rerun-notifs
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - google-auth==2.62.0
+      - google-auth-oauthlib==1.5.0
+      - requests==2.31.0

@@ -1,0 +1,10 @@
+__pycache__/
+.vscode/
+
+# Secrets and runtime files live in %APPDATA%\YouTubeNotifier\, never here.
+# These are a backstop in case one gets copied into the project by accident.
+client_secret*.json
+token.json
+config.json
+state.json*
+*.log
