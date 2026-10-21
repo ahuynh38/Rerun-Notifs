@@ -89,3 +89,8 @@ class YouTubeClient:
         # The playlist lists newest first; flip it so announcements post in upload order.
         # Deleted videos show up in the playlist but not in `statuses`, so they're skipped.
         return {vid: statuses[vid] for vid in reversed(video_ids) if vid in statuses}
+
+    def video_description(self, video_id: str) -> str:
+        """Return the video's description ("" if it has none). Costs 1 quota unit."""
+        items = self._get("videos", part="snippet", id=video_id).get("items") or []
+        return items[0]["snippet"].get("description", "") if items else ""

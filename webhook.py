@@ -13,6 +13,9 @@ import requests
 log = logging.getLogger(__name__)
 
 MAX_ATTEMPTS = 5
+DISCORD_MAX_LENGTH = 2000
+# How many lines of the video description to include under the link.
+DESCRIPTION_LINES = 6
 
 
 class WebhookError(Exception):
@@ -58,6 +61,13 @@ def post_message(webhook_url: str, content: str) -> None:
         time.sleep(delay)
 
 
-def announce_video(webhook_url: str, message: str, video_id: str) -> None:
-    """Post the announcement."""
-    post_message(webhook_url, f"{message} https://youtu.be/{video_id}")
+def announce_video(webhook_url: str, message: str, video_id: str, description: str = "") -> None:
+    """Post the announcement, followed by the start of the video description."""
+    content = f"{message} https://youtu.be/{video_id}"
+    excerpt = "\n".join(description.splitlines()[:DESCRIPTION_LINES]).strip()
+    if excerpt:
+        content += f"\n{excerpt}"
+    # Discord rejects messages over 2000 characters, so trim very long lines.
+    if len(content) > DISCORD_MAX_LENGTH:
+        content = content[: DISCORD_MAX_LENGTH - 1] + "…"
+    post_message(webhook_url, content)
