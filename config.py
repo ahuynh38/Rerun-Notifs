@@ -22,7 +22,7 @@ DEFAULTS = {
     "webhook_url": "",
     # Optional: where "needs attention" alerts go. Empty means use webhook_url.
     "alert_webhook_url": "",
-    "message": "Hey gamers. New rerun just dropped",
+    "message": "Hey gamers! New rerun just dropped.",
     "mention_role_id": "",
     "poll_interval_seconds": 300,
 }
