@@ -64,7 +64,14 @@ def post_message(webhook_url: str, content: str) -> None:
 def announce_video(webhook_url: str, message: str, video_id: str, description: str = "") -> None:
     """Post the announcement, followed by the start of the video description."""
     content = f"{message} https://youtu.be/{video_id}"
-    excerpt = "\n".join(description.splitlines()[:DESCRIPTION_LINES]).strip()
+    lines = description.splitlines()
+    # Drop the "In this episode..." line and everything after it.
+    # A first line without a hyphen counts the same way, which drops the whole description.
+    for i, line in enumerate(lines):
+        if line.lstrip().lower().startswith("in this episode") or (i == 0 and "-" not in line):
+            lines = lines[:i]
+            break
+    excerpt = "\n".join(lines[:DESCRIPTION_LINES]).strip()
     if excerpt:
         content += f"\n{excerpt}"
     # Discord rejects messages over 2000 characters, so trim very long lines.
