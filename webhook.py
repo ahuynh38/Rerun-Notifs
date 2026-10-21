@@ -22,12 +22,15 @@ class WebhookError(Exception):
     """Raised when Discord refuses the post and retrying won't help."""
 
 
-def post_message(webhook_url: str, content: str) -> None:
-    """Post `content` to the channel, retrying on rate limits and network hiccups."""
+def post_message(webhook_url: str, content: str, role_id: str = "") -> None:
+    """Post `content` to the channel, retrying on rate limits and network hiccups.
+
+    If `role_id` is given, that one role may be pinged; nothing else ever is.
+    """
     payload = {
         "content": content,
-        # Never let message text ping @everyone, @here, roles or users.
-        "allowed_mentions": {"parse": []},
+        # Never let message text ping @everyone, @here, users, or any other role.
+        "allowed_mentions": {"parse": [], "roles": [role_id] if role_id else []},
     }
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
@@ -61,9 +64,13 @@ def post_message(webhook_url: str, content: str) -> None:
         time.sleep(delay)
 
 
-def announce_video(webhook_url: str, message: str, video_id: str, description: str = "") -> None:
+def announce_video(
+    webhook_url: str, message: str, video_id: str, description: str = "", role_id: str = ""
+) -> None:
     """Post the announcement, followed by the start of the video description."""
     content = f"{message} https://youtu.be/{video_id}"
+    if role_id:
+        content = f"<@&{role_id}> {content}"
     lines = description.splitlines()
     # Drop the "In this episode..." line and everything after it.
     # A first line without a hyphen counts the same way, which drops the whole description.
@@ -77,4 +84,4 @@ def announce_video(webhook_url: str, message: str, video_id: str, description: s
     # Discord rejects messages over 2000 characters, so trim very long lines.
     if len(content) > DISCORD_MAX_LENGTH:
         content = content[: DISCORD_MAX_LENGTH - 1] + "…"
-    post_message(webhook_url, content)
+    post_message(webhook_url, content, role_id)

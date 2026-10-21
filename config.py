@@ -23,6 +23,7 @@ DEFAULTS = {
     # Optional: where "needs attention" alerts go. Empty means use webhook_url.
     "alert_webhook_url": "",
     "message": "Hey gamers. New rerun just dropped",
+    "mention_role_id": "",
     "poll_interval_seconds": 300,
 }
 
@@ -42,6 +43,7 @@ class Config:
     webhook_url: str
     alert_webhook_url: str
     message: str
+    mention_role_id: str
     poll_interval_seconds: int
 
 
@@ -69,6 +71,11 @@ def load_config() -> Config:
     if not isinstance(alert_webhook_url, str) or not alert_webhook_url.startswith(WEBHOOK_PREFIXES):
         raise ConfigError(f"alert_webhook_url in {CONFIG_FILE} must be a Discord webhook URL or empty.")
 
+    # Role IDs are long numbers; accept them typed with or without quotes.
+    mention_role_id = str(data["mention_role_id"]).strip()
+    if mention_role_id and not mention_role_id.isdigit():
+        raise ConfigError(f"mention_role_id in {CONFIG_FILE} must be a role ID (digits only) or empty.")
+
     try:
         # Never poll faster than once a minute, to protect the API quota.
         poll_interval = max(60, int(data["poll_interval_seconds"]))
@@ -79,5 +86,6 @@ def load_config() -> Config:
         webhook_url=webhook_url,
         alert_webhook_url=alert_webhook_url,
         message=str(data["message"]),
+        mention_role_id=mention_role_id,
         poll_interval_seconds=poll_interval,
     )

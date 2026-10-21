@@ -73,7 +73,7 @@ def check_once(client: YouTubeClient, cfg: Config, state: State | None) -> State
     for vid in unlisted:
         if vid in state.announced:
             continue
-        announce_video(cfg.webhook_url, cfg.message, vid, client.video_description(vid))
+        announce_video(cfg.webhook_url, cfg.message, vid, client.video_description(vid), cfg.mention_role_id)
         # Save after each post, so a crash mid-batch never causes a repost.
         state.announced.add(vid)
         save_state(state)
